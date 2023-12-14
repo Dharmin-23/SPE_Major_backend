@@ -4,40 +4,49 @@ pipeline {
     }
     agent any
     stages {
-        stage('Git clone') {
+        stage('1: Git clone') {
             steps {
-            git branch: 'main',credentialsId:'Github-credentials',url: 'https://github.com/Shubhamp194/Swapsie-backend.git'
+            git branch: 'main',credentialsId:'Github-credentials',
+            url: 'https://github.com/Dharmin-23/SPE_Major_backend'
             }
         }
 
-        stage("Running Test cases"){
+        stage("2: Running Test cases"){
             steps{
                 sh "mvn clean test"
             }
         }
          
-        stage("Maven Build"){
+        stage("3: Maven Build"){
             steps{
                 sh "mvn clean install"
             }
         }
 
-        stage('Docker Build Image') {
+        stage('4: Docker Build Image') {
             steps {
                 script{
-                    dockerimage=docker.build "shubhamp194/swapsie-backend-image"
+                    dockerimage=docker.build "dharmin23/swapsie-backend"
                 }
             }
         }
-        stage('Push Docker Image') {
+        stage('5: Push Docker Image') {
             steps {
                 script{
-                    docker.withRegistry('','docker-jenkins'){
+                    docker.withRegistry('','DockerHubDharminCreds'){
                     dockerimage.push()
                     }
                 }
             }
         }
-
+        
+        stage('6 : Clean docker images'){
+            steps{
+                script{
+                    sh 'docker container prune -f'
+                    sh 'docker image prune -f'
+                }
+            }
+        }
     }
 }
